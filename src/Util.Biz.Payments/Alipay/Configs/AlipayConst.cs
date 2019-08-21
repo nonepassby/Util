@@ -4,11 +4,15 @@
     /// </summary>
     public static class AlipayConst {
         /// <summary>
+        /// 支付宝跟踪日志名
+        /// </summary>
+        public const string TraceLogName = "AlipayTraceLog";
+        /// <summary>
         /// 编码
         /// </summary>
         public const string Charset = "charset";
         /// <summary>
-        /// 应用Id
+        /// 应用标识
         /// </summary>
         public const string AppId = "app_id";
         /// <summary>
@@ -48,6 +52,10 @@
         /// </summary>
         public const string BizContent = "biz_content";
         /// <summary>
+        /// 支付订单号
+        /// </summary>
+        public const string TradeNo = "trade_no";
+        /// <summary>
         /// 商户订单号
         /// </summary>
         public const string OutTradeNo = "out_trade_no";
@@ -75,5 +83,21 @@
         /// 商户门店编号
         /// </summary>
         public const string StoreId = "store_id";
+        /// <summary>
+        /// 买家支付宝用户号
+        /// </summary>
+        public const string BuyerId = "buyer_id";
+        /// <summary>
+        /// 交易状态
+        /// </summary>
+        public const string TradeStatus = "trade_status";
+        /// <summary>
+        /// 回调通知标识
+        /// </summary>
+        public const string NotifyId = "notify_id";
+        /// <summary>
+        /// 二维码
+        /// </summary>
+        public const string QrCode = "qr_code";
     }
 }

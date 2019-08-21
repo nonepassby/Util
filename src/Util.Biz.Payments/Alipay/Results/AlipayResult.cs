@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Util.Biz.Payments.Alipay.Configs;
 
 namespace Util.Biz.Payments.Alipay.Results {
     /// <summary>
@@ -14,11 +15,11 @@ namespace Util.Biz.Payments.Alipay.Results {
         /// <summary>
         /// 初始化支付宝结果
         /// </summary>
-        /// <param name="json">json响应消息</param>
-        public AlipayResult( string json ) {
-            Raw = json;
+        /// <param name="response">json响应消息</param>
+        public AlipayResult( string response ) {
+            Raw = response;
             _result = new Dictionary<string, string>();
-            LoadJson( json );
+            LoadJson( response );
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Util.Biz.Payments.Alipay.Results {
         public string GetValue( string key ) {
             if( key.IsEmpty() )
                 return string.Empty;
-            return _result.ContainsKey( key ) ? _result[key] : string.Empty;
+            return _result.ContainsKey( key ) ? _result[key].SafeString() : string.Empty;
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace Util.Biz.Payments.Alipay.Results {
         /// 获取支付订单号
         /// </summary>
         public string GetTradeNo() {
-            return GetValue( "trade_no" );
+            return GetValue( AlipayConst.TradeNo );
         }
 
         /// <summary>

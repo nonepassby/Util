@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Util.Ui.Extensions;
 
 namespace Util.Ui.TagHelpers {
     /// <summary>
@@ -12,11 +12,23 @@ namespace Util.Ui.TagHelpers {
         /// <param name="context">TagHelper上下文</param>
         /// <param name="output">TagHelper输出</param>
         /// <param name="content">内容</param>
-        public Context( TagHelperContext context, TagHelperOutput output, IHtmlContent content ) {
+        public Context( TagHelperContext context, TagHelperOutput output, TagHelperContent content ) {
+            TagHelperContext = context;
+            Output = output;
             AllAttributes = new TagHelperAttributeList( context.AllAttributes ) ;
-            OutputAttributes = output.Attributes;
+            OutputAttributes = new TagHelperAttributeList( output.Attributes ); 
             Content = content;
         }
+
+        /// <summary>
+        /// TagHelper上下文
+        /// </summary>
+        public TagHelperContext TagHelperContext { get; }
+
+        /// <summary>
+        /// TagHelper输出
+        /// </summary>
+        public TagHelperOutput Output { get; }
 
         /// <summary>
         /// 全部属性集合
@@ -31,6 +43,30 @@ namespace Util.Ui.TagHelpers {
         /// <summary>
         /// 内容
         /// </summary>
-        public IHtmlContent Content { get; }
+        public TagHelperContent Content { get; set; }
+
+        /// <summary>
+        /// 从TagHelperContext Items里获取值
+        /// </summary>
+        /// <typeparam name="T">返回类型</typeparam>
+        /// <param name="key">键</param>
+        public T GetValueFromItems<T>( object key = null ) {
+            return TagHelperContext.GetValueFromItems<T>( key );
+        }
+
+        /// <summary>
+        /// 设置TagHelperContext Items值
+        /// </summary>
+        /// <param name="value">值</param>
+        public void SetValueToItems<T>( T value ) {
+            TagHelperContext.SetValueToItems( value );
+        }
+
+        /// <summary>
+        /// 移除TagHelperContext Items值
+        /// </summary>
+        public void RemoveFromItems<T>() {
+            TagHelperContext.RemoveFromItems<T>();
+        }
     }
 }

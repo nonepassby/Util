@@ -73,6 +73,16 @@ namespace Util.Ui.Tests.Material.Forms {
         }
 
         /// <summary>
+        /// 测试添加绑定名称
+        /// </summary>
+        [Fact]
+        public void TestBindName() {
+            var result = new String();
+            result.Append( "<mat-radio-wrapper [name]=\"a\"></mat-radio-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.BindName( "a" ) ) );
+        }
+
+        /// <summary>
         /// 测试是否垂直布局
         /// </summary>
         [Fact]
@@ -100,6 +110,16 @@ namespace Util.Ui.Tests.Material.Forms {
             var result = new String();
             result.Append( "<mat-radio-wrapper label=\"a\"></mat-radio-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( _component.Label( "a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置标签绑定
+        /// </summary>
+        [Fact]
+        public void TestBindLabel() {
+            var result = new String();
+            result.Append( "<mat-radio-wrapper [label]=\"a\"></mat-radio-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.BindLabel( "a" ) ) );
         }
 
         /// <summary>
@@ -173,6 +193,16 @@ namespace Util.Ui.Tests.Material.Forms {
         }
 
         /// <summary>
+        /// 测试独立
+        /// </summary>
+        [Fact]
+        public void TestStandalone() {
+            var result = new String();
+            result.Append( "<mat-radio-wrapper [standalone]=\"true\"></mat-radio-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Standalone() ) );
+        }
+
+        /// <summary>
         /// 测试添加项
         /// </summary>
         [Fact]
@@ -203,8 +233,8 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestBool() {
             var result = new String();
             result.Append( "<mat-radio-wrapper [dataSource]=\"[" );
-            result.Append( "{'text':'是','value':'true'}," );
-            result.Append( "{'text':'否','value':'false'}" );
+            result.Append( "{'text':'是','value':true}," );
+            result.Append( "{'text':'否','value':false}" );
             result.Append( "]\"></mat-radio-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( _component.Bool() ) );
         }
@@ -216,8 +246,8 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestEnum() {
             var result = new String();
             result.Append( "<mat-radio-wrapper [dataSource]=\"[" );
-            result.Append( "{'text':'女士','value':1,'sortId':1}," );
-            result.Append( "{'text':'先生','value':2,'sortId':2}" );
+            result.Append( "{'text':'女','value':1,'sortId':1}," );
+            result.Append( "{'text':'男','value':2,'sortId':2}" );
             result.Append( "]\"></mat-radio-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( (Radio)_component.Enum<Gender>() ) );
         }

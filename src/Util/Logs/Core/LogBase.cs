@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
-using Util.Domains.Sessions;
 using Util.Logs.Abstractions;
 using Util.Logs.Extensions;
+using Util.Sessions;
 
 namespace Util.Logs.Core {
     /// <summary>
@@ -28,7 +28,7 @@ namespace Util.Logs.Core {
         protected LogBase( ILogProvider provider, ILogContext context, ISession session ) {
             Provider = provider;
             Context = context;
-            Session = session ?? Util.Domains.Sessions.Session.Null;
+            Session = session ?? NullSession.Instance;
         }
 
         /// <summary>

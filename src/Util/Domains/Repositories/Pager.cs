@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Util.Domains.Repositories {
+﻿namespace Util.Domains.Repositories {
     /// <summary>
     /// 分页参数
     /// </summary>
@@ -72,8 +70,6 @@ namespace Util.Domains.Repositories {
         /// 获取跳过的行数
         /// </summary>
         public int GetSkipCount() {
-            if ( Page > GetPageCount() )
-                Page = GetPageCount();
             return PageSize * ( Page - 1 );
         }
 
@@ -93,47 +89,6 @@ namespace Util.Domains.Repositories {
         /// </summary>
         public int GetEndNumber() {
             return Page * PageSize;
-        }
-
-        /// <summary>
-        /// 描述
-        /// </summary>
-        private StringBuilder _description;
-
-        /// <summary>
-        /// 输出对象状态
-        /// </summary>
-        public override string ToString() {
-            _description = new StringBuilder();
-            AddDescriptions();
-            return _description.ToString().TrimEnd().TrimEnd( ',' );
-        }
-
-        /// <summary>
-        /// 添加描述
-        /// </summary>
-        protected virtual void AddDescriptions() {
-            AddDescription( "Page", Page );
-            AddDescription( "PageSize", PageSize );
-            AddDescription( "Order", Order );
-        }
-
-        /// <summary>
-        /// 添加描述
-        /// </summary>
-        protected void AddDescription( string description ) {
-            if( string.IsNullOrWhiteSpace( description ) )
-                return;
-            _description.Append( description );
-        }
-
-        /// <summary>
-        /// 添加描述
-        /// </summary>
-        protected void AddDescription<TValue>( string name, TValue value ) {
-            if( string.IsNullOrWhiteSpace( value.SafeString() ) )
-                return;
-            _description.AppendFormat( "{0}:{1},", name, value );
         }
     }
 }

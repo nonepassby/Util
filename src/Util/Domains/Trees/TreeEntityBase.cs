@@ -5,19 +5,30 @@ using System.Linq;
 
 namespace Util.Domains.Trees {
     /// <summary>
-    /// 树型实体
+    /// 树形实体
     /// </summary>
-    /// <typeparam name="TEntity">树型实体类型</typeparam>
+    /// <typeparam name="TEntity">树形实体类型</typeparam>
+    public abstract class TreeEntityBase<TEntity> : TreeEntityBase<TEntity, Guid, Guid?> where TEntity : ITreeEntity<TEntity, Guid, Guid?> {
+        /// <summary>
+        /// 初始化树形实体
+        /// </summary>
+        /// <param name="id">标识</param>
+        /// <param name="path">路径</param>
+        /// <param name="level">级数</param>
+        protected TreeEntityBase( Guid id, string path, int level )
+            : base( id, path, level ) {
+        }
+    }
+
+    /// <summary>
+    /// 树形实体
+    /// </summary>
+    /// <typeparam name="TEntity">树形实体类型</typeparam>
     /// <typeparam name="TKey">标识类型</typeparam>
-    /// <typeparam name="TParentId">父编号类型</typeparam>
+    /// <typeparam name="TParentId">父标识类型</typeparam>
     public abstract class TreeEntityBase<TEntity, TKey, TParentId> : AggregateRoot<TEntity, TKey>, ITreeEntity<TEntity, TKey, TParentId> where TEntity : ITreeEntity<TEntity, TKey, TParentId> {
         /// <summary>
-        /// 父对象
-        /// </summary>
-        private TEntity _parent;
-
-        /// <summary>
-        /// 初始化树型实体
+        /// 初始化树形实体
         /// </summary>
         /// <param name="id">标识</param>
         /// <param name="path">路径</param>
@@ -29,18 +40,7 @@ namespace Util.Domains.Trees {
         }
 
         /// <summary>
-        /// 父对象
-        /// </summary>
-        public virtual TEntity Parent {
-            get => _parent;
-            set {
-                _parent = value;
-                InitPath();
-            }
-        }
-
-        /// <summary>
-        /// 父编号
+        /// 父标识
         /// </summary>
         public TParentId ParentId { get; set; }
 
@@ -51,7 +51,7 @@ namespace Util.Domains.Trees {
         public virtual string Path { get;private set; }
 
         /// <summary>
-        /// 级数
+        /// 层级
         /// </summary>
         public int Level { get; private set; }
 
@@ -69,14 +69,14 @@ namespace Util.Domains.Trees {
         /// 初始化路径
         /// </summary>
         public virtual void InitPath() {
-            InitPath( Parent );
+            InitPath( default(TEntity) );
         }
 
         /// <summary>
         /// 初始化路径
         /// </summary>
         /// <param name="parent">父节点</param>
-        public void InitPath( TEntity parent ) {
+        public virtual void InitPath( TEntity parent ) {
             if( Equals( parent, null ) ) {
                 Level = 1;
                 Path = $"{Id},";
@@ -97,22 +97,6 @@ namespace Util.Domains.Trees {
             if( excludeSelf )
                 result = result.Where( id => id.SafeString().ToLower() != Id.SafeString().ToLower() ).ToList();
             return result.Select( Util.Helpers.Convert.To<TKey> ).ToList();
-        }
-    }
-
-    /// <summary>
-    /// 树型实体
-    /// </summary>
-    /// <typeparam name="TEntity">树型实体类型</typeparam>
-    public abstract class TreeEntityBase<TEntity> : TreeEntityBase<TEntity, Guid, Guid?> where TEntity : ITreeEntity<TEntity, Guid, Guid?> {
-        /// <summary>
-        /// 初始化树型实体
-        /// </summary>
-        /// <param name="id">标识</param>
-        /// <param name="path">路径</param>
-        /// <param name="level">级数</param>
-        protected TreeEntityBase( Guid id, string path, int level )
-            : base( id, path, level ) {
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Util.Ui.Angular;
 using Util.Ui.Configs;
 using Util.Ui.Enums;
-using Util.Ui.Material.Commons.Configs;
 using Util.Ui.Material.Enums;
 using Util.Ui.Material.Forms.TagHelpers;
 using Util.Ui.Tests.XUnitHelpers;
@@ -83,11 +83,22 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         }
 
         /// <summary>
+        /// 测试设置标签绑定
+        /// </summary>
+        [Fact]
+        public void TestBindLabel() {
+            var attributes = new TagHelperAttributeList { { AngularConst.BindLabel, "a" } };
+            var result = new String();
+            result.Append( "<mat-checkbox>{{a}}</mat-checkbox>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
         /// 测试标签位置
         /// </summary>
         [Fact]
         public void TestPosition() {
-            var attributes = new TagHelperAttributeList { { UiConst.Position, LabelPosition.Left } };
+            var attributes = new TagHelperAttributeList { { UiConst.Position, XPosition.Left } };
             var result = new String();
             result.Append( "<mat-checkbox labelPosition=\"before\"></mat-checkbox>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );

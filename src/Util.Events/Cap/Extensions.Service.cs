@@ -1,9 +1,9 @@
 ﻿using System;
 using DotNetCore.CAP;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Util.Events.Default;
 using Util.Events.Handlers;
-using Util.Events.Messages;
 
 namespace Util.Events.Cap {
     /// <summary>
@@ -11,15 +11,17 @@ namespace Util.Events.Cap {
     /// </summary>
     public static class Extensions {
         /// <summary>
-        /// 注册事件总线服务
+        /// 注册Cap事件总线服务
         /// </summary>
         /// <param name="services">服务集合</param>
         /// <param name="action">配置操作</param>
-        public static void AddEventBus( this IServiceCollection services,Action<CapOptions> action ) {
+        public static IServiceCollection AddEventBus( this IServiceCollection services, Action<CapOptions> action ) {
+            services.TryAddSingleton<IEventHandlerManager, EventHandlerManager>();
+            services.TryAddSingleton<ISimpleEventBus, Default.EventBus>();
+            services.TryAddScoped<IMessageEventBus, MessageEventBus>();
+            services.TryAddScoped<IEventBus, EventBus>();
             services.AddCap( action );
-            services.AddSingleton<IMessageEventBus, MessageEventBus>();
-            services.AddSingleton<IEventHandlerManager, EventHandlerManager>();
-            services.AddSingleton<IEventBus, EventBus>();
+            return services;
         }
     }
 }

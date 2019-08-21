@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Util.Domains;
+using Util.Logs.Extensions;
 
 namespace Util.Applications {
     /// <summary>
     /// 增删改查服务 - Save
     /// </summary>
-    public abstract partial class CrudServiceBase<TEntity, TDto, TRequest, TQueryParameter, TKey> {
+    public abstract partial class CrudServiceBase<TEntity, TDto, TRequest, TCreateRequest, TUpdateRequest, TQueryParameter, TKey> {
         /// <summary>
         /// 创建
         /// </summary>
-        /// <param name="request">请求参数</param>
-        public void Create( TRequest request ) {
+        /// <param name="request">创建参数</param>
+        public virtual string Create( TCreateRequest request ) {
             if( request == null )
                 throw new ArgumentNullException( nameof( request ) );
-            var entity = ToEntity( request );
+            var entity = ToEntityFromCreateRequest( request );
             if( entity == null )
                 throw new ArgumentNullException( nameof( entity ) );
             Create( entity );
-            request.Id = entity.Id.ToString();
+            return entity.Id.ToString();
         }
 
         /// <summary>
@@ -44,13 +46,53 @@ namespace Util.Applications {
         }
 
         /// <summary>
-        /// 修改
+        /// 创建
         /// </summary>
-        /// <param name="request">请求参数</param>
-        public void Update( TRequest request ) {
+        /// <param name="request">创建参数</param>
+        public virtual async Task<string> CreateAsync( TCreateRequest request ) {
             if( request == null )
                 throw new ArgumentNullException( nameof( request ) );
-            var entity = ToEntity( request );
+            var entity = ToEntityFromCreateRequest( request );
+            if( entity == null )
+                throw new ArgumentNullException( nameof( entity ) );
+            await CreateAsync( entity );
+            return entity.Id.ToString();
+        }
+
+        /// <summary>
+        /// 创建实体
+        /// </summary>
+        protected async Task CreateAsync( TEntity entity ) {
+            CreateBefore( entity );
+            await CreateBeforeAsync( entity );
+            entity.Init();
+            await _repository.AddAsync( entity );
+            CreateAfter( entity );
+            await CreateAfterAsync( entity );
+        }
+
+        /// <summary>
+        /// 创建前操作
+        /// </summary>
+        protected virtual Task CreateBeforeAsync( TEntity entity ) {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 创建后操作
+        /// </summary>
+        protected virtual Task CreateAfterAsync( TEntity entity ) {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 修改
+        /// </summary>
+        /// <param name="request">修改参数</param>
+        public virtual void Update( TUpdateRequest request ) {
+            if( request == null )
+                throw new ArgumentNullException( nameof( request ) );
+            var entity = ToEntityFromUpdateRequest( request );
             if( entity == null )
                 throw new ArgumentNullException( nameof( entity ) );
             Update( entity );
@@ -60,9 +102,29 @@ namespace Util.Applications {
         /// 修改实体
         /// </summary>
         protected void Update( TEntity entity ) {
+            var oldEntity = FindOldEntity( entity.Id );
+            if( oldEntity == null )
+                throw new ArgumentNullException( nameof( oldEntity ) );
+            var changes = oldEntity.GetChanges( entity );
             UpdateBefore( entity );
             _repository.Update( entity );
-            UpdateAfter( entity );
+            UpdateAfter( entity, changes );
+        }
+
+        /// <summary>
+        /// 查找旧实体
+        /// </summary>
+        /// <param name="id">标识</param>
+        protected virtual TEntity FindOldEntity( TKey id ) {
+            return _repository.Find( id );
+        }
+
+        /// <summary>
+        /// 查找旧实体
+        /// </summary>
+        /// <param name="id">标识</param>
+        protected virtual async Task<TEntity> FindOldEntityAsync( TKey id ) {
+            return await _repository.FindAsync( id );
         }
 
         /// <summary>
@@ -76,50 +138,89 @@ namespace Util.Applications {
         /// 修改后操作
         /// </summary>
         /// <param name="entity">实体</param>
-        protected virtual void UpdateAfter( TEntity entity ) {
-            AddLog( entity );
+        /// <param name="changeValues">变更值集合</param>
+        protected virtual void UpdateAfter( TEntity entity, ChangeValueCollection changeValues ) {
+            Log.BusinessId( entity.Id.SafeString() ).Content( $"Id:{entity.Id},{changeValues}" );
+        }
+
+        /// <summary>
+        /// 修改
+        /// </summary>
+        /// <param name="request">修改参数</param>
+        public virtual async Task UpdateAsync( TUpdateRequest request ) {
+            if( request == null )
+                throw new ArgumentNullException( nameof( request ) );
+            var entity = ToEntityFromUpdateRequest( request );
+            if( entity == null )
+                throw new ArgumentNullException( nameof( entity ) );
+            await UpdateAsync( entity );
+        }
+
+        /// <summary>
+        /// 修改实体
+        /// </summary>
+        protected async Task UpdateAsync( TEntity entity ) {
+            var oldEntity = await FindOldEntityAsync( entity.Id );
+            if( oldEntity == null )
+                throw new ArgumentNullException( nameof( oldEntity ) );
+            var changes = oldEntity.GetChanges( entity );
+            UpdateBefore( entity );
+            await UpdateBeforeAsync( entity );
+            await _repository.UpdateAsync( entity );
+            UpdateAfter( entity, changes );
+            await UpdateAfterAsync( entity, changes );
+        }
+
+        /// <summary>
+        /// 修改前操作
+        /// </summary>
+        /// <param name="entity">实体</param>
+        protected virtual Task UpdateBeforeAsync( TEntity entity ) {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 修改后操作
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="changeValues">变更值集合</param>
+        protected virtual Task UpdateAfterAsync( TEntity entity, ChangeValueCollection changeValues ) {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// 保存
         /// </summary>
-        /// <param name="request">请求参数</param>
-        public void Save( TRequest request ) {
+        /// <param name="request">参数</param>
+        public virtual async Task SaveAsync( TRequest request ) {
             if( request == null )
                 throw new ArgumentNullException( nameof( request ) );
             SaveBefore( request );
             var entity = ToEntity( request );
             if( entity == null )
                 throw new ArgumentNullException( nameof( entity ) );
-            if ( IsNew( request, entity ) ) {
-                Create( entity );
+            if( IsNew( request, entity ) ) {
+                await CreateAsync( entity );
                 request.Id = entity.Id.ToString();
             }
             else
-                Update( entity );
+                await UpdateAsync( entity );
         }
 
         /// <summary>
         /// 保存前操作
         /// </summary>
-        /// <param name="request">请求参数</param>
+        /// <param name="request">参数</param>
         protected virtual void SaveBefore( TRequest request ) {
         }
 
         /// <summary>
         /// 是否创建
         /// </summary>
-        /// <param name="request">请求参数</param>
+        /// <param name="request">参数</param>
         /// <param name="entity">实体</param>
         protected virtual bool IsNew( TRequest request, TEntity entity ) {
             return string.IsNullOrWhiteSpace( request.Id ) || entity.Id.Equals( default( TKey ) );
-        }
-
-        /// <summary>
-        /// 保存后操作
-        /// </summary>
-        protected virtual void SaveAfter() {
-            WriteLog( $"保存{EntityDescription}成功" );
         }
 
         /// <summary>
@@ -130,65 +231,10 @@ namespace Util.Applications {
         }
 
         /// <summary>
-        /// 创建
+        /// 保存后操作
         /// </summary>
-        /// <param name="request">请求参数</param>
-        public async Task CreateAsync( TRequest request ) {
-            if( request == null )
-                throw new ArgumentNullException( nameof( request ) );
-            var entity = ToEntity( request );
-            if( entity == null )
-                throw new ArgumentNullException( nameof( entity ) );
-            await CreateAsync( entity );
-        }
-
-        /// <summary>
-        /// 创建实体
-        /// </summary>
-        protected async Task CreateAsync( TEntity entity ) {
-            CreateBefore( entity );
-            entity.Init();
-            await _repository.AddAsync( entity );
-            CreateAfter( entity );
-        }
-
-        /// <summary>
-        /// 修改
-        /// </summary>
-        /// <param name="request">请求参数</param>
-        public async Task UpdateAsync( TRequest request ) {
-            if( request == null )
-                throw new ArgumentNullException( nameof( request ) );
-            var entity = ToEntity( request );
-            if( entity == null )
-                throw new ArgumentNullException( nameof( entity ) );
-            await UpdateAsync( entity );
-        }
-
-        /// <summary>
-        /// 修改实体
-        /// </summary>
-        protected async Task UpdateAsync( TEntity entity ) {
-            UpdateBefore( entity );
-            await _repository.UpdateAsync( entity );
-            UpdateAfter( entity );
-        }
-
-        /// <summary>
-        /// 保存
-        /// </summary>
-        /// <param name="request">请求参数</param>
-        public async Task SaveAsync( TRequest request ) {
-            if( request == null )
-                throw new ArgumentNullException( nameof( request ) );
-            SaveBefore( request );
-            var entity = ToEntity( request );
-            if( entity == null )
-                throw new ArgumentNullException( nameof( entity ) );
-            if( IsNew( request, entity ) )
-                await CreateAsync( entity );
-            else
-                await UpdateAsync( entity );
+        protected virtual void SaveAfter() {
+            WriteLog( $"保存{EntityDescription}成功" );
         }
     }
 }

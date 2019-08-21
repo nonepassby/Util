@@ -27,7 +27,7 @@ namespace Util.Ui.Tests.Material.Buttons {
         /// </summary>
         public ButtonTest( ITestOutputHelper output ) {
             _output = output;
-            _component = new Button();
+            _component = new Button( new StringWriter() );
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Util.Ui.Tests.Material.Buttons {
         public void TestDisable_String() {
             var result = new String();
             result.Append( "<mat-button-wrapper [disabled]=\"a\"></mat-button-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.Disable("a") ) );
+            Assert.Equal( result.ToString(), GetResult( _component.Disable( "a" ) ) );
         }
 
         /// <summary>
@@ -148,6 +148,96 @@ namespace Util.Ui.Tests.Material.Buttons {
             var result = new String();
             result.Append( "<mat-button-wrapper (onClick)=\"a\"></mat-button-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( _component.OnClick( "a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识
+        /// </summary>
+        [Fact]
+        public void TestMenuId() {
+            var result = new String();
+            result.Append( "<button mat-raised-button=\"\" type=\"button\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置标识
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Id() {
+            var result = new String();
+            result.Append( "<button #b=\"\" mat-raised-button=\"\" type=\"button\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Id( "b" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置文本
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Text() {
+            var result = new String();
+            result.Append( "<button mat-raised-button=\"\" type=\"button\" [matMenuTriggerFor]=\"a\">b</button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Text( "b" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置样式
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Style() {
+            var result = new String();
+            result.Append( "<button mat-fab=\"\" type=\"button\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Style( ButtonStyle.Fab ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置颜色
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Color() {
+            var result = new String();
+            result.Append( "<button color=\"warn\" mat-raised-button=\"\" type=\"button\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Color( Color.Warn ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置禁用
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Disable() {
+            var result = new String();
+            result.Append( "<button mat-raised-button=\"\" type=\"button\" [disabled]=\"b\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Disable("b") ) );
+        }
+
+        /// <summary>
+        /// 测试设置菜单标识 - 设置提示
+        /// </summary>
+        [Fact]
+        public void TestMenuId_Tooltip() {
+            var result = new String();
+            result.Append( "<button mat-raised-button=\"\" matTooltip=\"b\" type=\"button\" [matMenuTriggerFor]=\"a\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Menu( "a" ).Tooltip( "b" ) ) );
+        }
+
+        /// <summary>
+        /// 测试关闭弹出层
+        /// </summary>
+        [Fact]
+        public void TestCloseDialog() {
+            var result = new String();
+            result.Append( "<button mat-dialog-close=\"\" mat-raised-button=\"\" type=\"button\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.CloseDialog() ) );
+        }
+
+        /// <summary>
+        /// 测试关闭弹出层
+        /// </summary>
+        [Fact]
+        public void TestCloseDialog_2() {
+            var result = new String();
+            result.Append( "<button mat-dialog-close=\"a\" mat-raised-button=\"\" type=\"button\"></button>" );
+            Assert.Equal( result.ToString(), GetResult( _component.CloseDialog( "a" ) ) );
         }
     }
 }

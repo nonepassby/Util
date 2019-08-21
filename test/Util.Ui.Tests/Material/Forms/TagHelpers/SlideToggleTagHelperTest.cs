@@ -85,7 +85,7 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         /// </summary>
         [Fact]
         public void TestPosition() {
-            var attributes = new TagHelperAttributeList { { UiConst.Position, LabelPosition.Left } };
+            var attributes = new TagHelperAttributeList { { UiConst.Position, XPosition.Left } };
             var result = new String();
             result.Append( "<mat-slide-toggle labelPosition=\"before\"></mat-slide-toggle>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
@@ -99,6 +99,17 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
             var attributes = new TagHelperAttributeList { { UiConst.Disabled, true } };
             var result = new String();
             result.Append( "<mat-slide-toggle [disabled]=\"true\"></mat-slide-toggle>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试选中
+        /// </summary>
+        [Fact]
+        public void TestChecked() {
+            var attributes = new TagHelperAttributeList { { UiConst.Checked, "a" } };
+            var result = new String();
+            result.Append( "<mat-slide-toggle [checked]=\"a\"></mat-slide-toggle>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
         }
 

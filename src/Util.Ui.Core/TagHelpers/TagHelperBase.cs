@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Util.Logs;
 using Util.Logs.Extensions;
 using Util.Ui.Components;
@@ -10,14 +11,33 @@ namespace Util.Ui.TagHelpers {
     /// </summary>
     public abstract class TagHelperBase : TagHelper {
         /// <summary>
+        /// 标识
+        /// </summary>
+        public string Id { get; set; }
+        /// <summary>
+        /// 是否写跟踪日志
+        /// </summary>
+        public bool WriteLog { get; set; }
+
+        /// <summary>
         /// 渲染
         /// </summary>
-        public override async void Process( TagHelperContext context, TagHelperOutput output ) {
+        public override async Task ProcessAsync( TagHelperContext tagHelperContext, TagHelperOutput output ) {
+            var context = new Context( tagHelperContext, output, null );
+            ProcessBefore( context );
             var content = await output.GetChildContentAsync();
-            var render = GetRender( new Context( context, output, content ) );
+            context.Content = content;
+            var render = GetRender( context );
             output.SuppressOutput();
             output.PostElement.SetHtmlContent( render );
-            WriteLog( render );
+            ProcessAfter( context,render );
+        }
+
+        /// <summary>
+        /// 处理前操作
+        /// </summary>
+        /// <param name="context">上下文</param>
+        protected virtual void ProcessBefore( Context context ) {
         }
 
         /// <summary>
@@ -27,14 +47,24 @@ namespace Util.Ui.TagHelpers {
         protected abstract IRender GetRender( Context context );
 
         /// <summary>
+        /// 处理后操作
+        /// </summary>
+        /// <param name="context">上下文</param>
+        /// <param name="render">渲染器</param>
+        protected virtual void ProcessAfter( Context context, IRender render ) {
+            if( WriteLog )
+                WriteTraceLog( render, "渲染TagHelper组件" );
+        }
+
+        /// <summary>
         /// 写日志
         /// </summary>
-        protected void WriteLog( IRender render ) {
+        protected void WriteTraceLog( IRender render,string caption ) {
             var log = GetLog();
             if( log.IsTraceEnabled == false )
                 return;
             log.Class( GetType().FullName )
-                .Caption( "渲染TagHelper" )
+                .Caption( caption )
                 .Content( render.ToString() )
                 .Trace();
         }
@@ -44,7 +74,7 @@ namespace Util.Ui.TagHelpers {
         /// </summary>
         private ILog GetLog() {
             try {
-                return Log.GetLog( OptionBase.TraceLogName );
+                return Log.GetLog( ComponentBase.TraceLogName );
             }
             catch {
                 return Log.Null;

@@ -170,6 +170,14 @@ namespace SchemaMapper
         }
 
         /// <summary>
+        /// 获取导航属性标识列名
+        /// </summary>
+        public string GetOtherIdProperty(string name)
+        {
+            return Context.Entities.ByClass(name).GetId().ColumnName;
+        }
+
+        /// <summary>
         /// 获取属性集合,不包含Version属性
         /// </summary>
         public List<Property> GetProperties(bool isExcludeVersion = true)
@@ -422,7 +430,7 @@ namespace SchemaMapper
         {
             if (string.IsNullOrWhiteSpace(TableSchema) || TableSchema.ToLower().Trim() == "dbo")
                 return string.Format("{0}.{1}{2}", baseNamespace, layer, GetCategory(category));
-            return string.Format("{0}.{1}.{2}{3}", baseNamespace, layer, TableSchema, GetCategory(category));
+            return string.Format("{0}.{1}.{2}{3}", baseNamespace, TableSchema, layer, GetCategory(category));
         }
 
         /// <summary>
@@ -448,7 +456,7 @@ namespace SchemaMapper
         }
 
         /// <summary>
-        /// 是否表单隐藏属性
+        /// 是否隐藏
         /// </summary>
         /// <param name="property">属性</param>
         public bool IsHidden(Property property) {
@@ -464,6 +472,25 @@ namespace SchemaMapper
                 return true;
             if (property.ColumnName == "LastModifierId" && property.DataType == DbType.Guid )
                 return true;            
+            return false;
+        }
+
+        /// <summary>
+        /// 是否在详情隐藏
+        /// </summary>
+        /// <param name="property">属性</param>
+        public bool IsDetailHidden(Property property)
+        {
+            if (property.ColumnName == "Version" && property.DataType == DbType.Binary)
+                return true;
+            if (property.ColumnName == "IsDeleted" && property.DataType == DbType.Boolean)
+                return true;
+            if (property.ColumnName == "CreatorId" && property.DataType == DbType.Guid)
+                return true;
+            if (property.ColumnName == "LastModificationTime" && property.DataType == DbType.DateTime)
+                return true;
+            if (property.ColumnName == "LastModifierId" && property.DataType == DbType.Guid)
+                return true;
             return false;
         }
 
@@ -673,6 +700,8 @@ namespace SchemaMapper
         {
             if (IsRequired == false)
                 return;
+            if (DataType == DbType.Boolean)
+                return;
             result.Add(string.Format("[Required(ErrorMessage = \"{0}不能为空\")]", Description));
         }
 
@@ -685,7 +714,7 @@ namespace SchemaMapper
                 return;
             if (MaxLength == -1)
                 return;
-            result.Add(string.Format("[StringLength( {0}, ErrorMessage = \"{1}输入过长，不能超过{0}位\" )]", MaxLength, Description));
+            result.Add(string.Format("[StringLength( {0} )]", MaxLength, Description));
         }
 
         /// <summary>

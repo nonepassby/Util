@@ -1,6 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Util.Exceptions;
 using Util.Validations;
 
 namespace Util.Biz.Payments.Alipay.Configs {
@@ -15,33 +15,39 @@ namespace Util.Biz.Payments.Alipay.Configs {
         public string GatewayUrl { get; set; } = "https://openapi.alipay.com/gateway.do";
 
         /// <summary>
-        /// 应用Id
+        /// 应用标识
         /// </summary>
-        [Required(ErrorMessage = "应用Id[AppId]不能为空" )]
+        [Required(ErrorMessage = "应用标识[AppId]不能为空" )]
         public string AppId { get; set; }
 
         /// <summary>
         /// 商户应用私钥
         /// </summary>
         [Required( ErrorMessage = "商户应用私钥[PrivateKey]不能为空" )]
-        public string AppPrivateKey { get; set; }
+        public string PrivateKey { get; set; }
 
         /// <summary>
         /// 支付宝公钥
         /// </summary>
         [Required( ErrorMessage = "支付宝公钥[PublicKey]不能为空" )]
-        public string AlipayPublicKey { get; set; }
+        public string PublicKey { get; set; }
 
         /// <summary>
         /// 回调通知地址
         /// </summary>
-        [Required( ErrorMessage = "回调通知地址[NotifyUrl]不能为空" )]
         public string NotifyUrl { get; set; }
 
         /// <summary>
-        /// 返回地址
+        /// 字符编码，默认值：utf-8
         /// </summary>
-        public string ReturnUrl { get; set; }
+        public string Charset { get; set; } = "utf-8";
+
+        /// <summary>
+        /// 获取支付网关地址
+        /// </summary>
+        public string GetGatewayUrl() {
+            return $"{GatewayUrl}?charset={Charset}";
+        }
 
         /// <summary>
         /// 验证
@@ -49,7 +55,7 @@ namespace Util.Biz.Payments.Alipay.Configs {
         public void Validate() {
             var result = DataAnnotationValidation.Validate( this );
             if( result.IsValid == false )
-                throw new ArgumentException( result.First().ErrorMessage );
+                throw new Warning( result.First().ErrorMessage );
         }
     }
 }

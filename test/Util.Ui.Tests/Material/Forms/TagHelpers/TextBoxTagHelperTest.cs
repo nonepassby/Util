@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Util.Ui.Angular;
 using Util.Ui.Configs;
 using Util.Ui.Enums;
-using Util.Ui.Material.Commons.Configs;
+using Util.Ui.Material;
 using Util.Ui.Material.Enums;
 using Util.Ui.Material.Forms.TagHelpers;
 using Util.Ui.Tests.XUnitHelpers;
@@ -72,6 +73,17 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         }
 
         /// <summary>
+        /// 测试添加绑定名称
+        /// </summary>
+        [Fact]
+        public void TestBindName() {
+            var attributes = new TagHelperAttributeList { { AngularConst.BindName, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [name]=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
         /// 测试禁用
         /// </summary>
         [Fact]
@@ -101,6 +113,17 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
             var attributes = new TagHelperAttributeList { { UiConst.Placeholder, "a" } };
             var result = new String();
             result.Append( "<mat-textbox-wrapper placeholder=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试设置绑定占位提示
+        /// </summary>
+        [Fact]
+        public void TestBindPlaceholder() {
+            var attributes = new TagHelperAttributeList { { AngularConst.BindPlaceholder, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [placeholder]=\"a\"></mat-textbox-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
         }
 
@@ -249,6 +272,17 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         }
 
         /// <summary>
+        /// 测试设置为多行文本框
+        /// </summary>
+        [Fact]
+        public void TestType_Multiple() {
+            var attributes = new TagHelperAttributeList { { UiConst.Type, TextBoxType.Multiple } };
+            var result = new String();
+            result.Append( "<mat-textarea-wrapper type=\"text\"></mat-textarea-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
         /// 测试设置为电子邮件框
         /// </summary>
         [Fact]
@@ -311,6 +345,72 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
             var attributes = new TagHelperAttributeList { { UiConst.MaxLength, 3 } };
             var result = new String();
             result.Append( "<mat-textbox-wrapper [maxLength]=\"3\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试最小值验证
+        /// </summary>
+        [Fact]
+        public void TestMin() {
+            var attributes = new TagHelperAttributeList { { UiConst.Min, 3 } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [min]=\"3\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试最小值,添加指定错误消息
+        /// </summary>
+        [Fact]
+        public void TestMin_Message() {
+            var attributes = new TagHelperAttributeList { { UiConst.MinMessage, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper minMessage=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试最大值验证
+        /// </summary>
+        [Fact]
+        public void TestMax() {
+            var attributes = new TagHelperAttributeList { { UiConst.Max, 3 } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [max]=\"3\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试最大值,添加指定错误消息
+        /// </summary>
+        [Fact]
+        public void TestMax_Message() {
+            var attributes = new TagHelperAttributeList { { UiConst.MaxMessage, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper maxMessage=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试正则表达式验证
+        /// </summary>
+        [Fact]
+        public void TestRegex() {
+            var attributes = new TagHelperAttributeList { { UiConst.Regex, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper pattern=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试正则表达式验证消息
+        /// </summary>
+        [Fact]
+        public void TestRegexMessage() {
+            var attributes = new TagHelperAttributeList { { UiConst.RegexMessage, "a" } };
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper patterMessage=\"a\"></mat-textbox-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
         }
 

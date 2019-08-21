@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.Encodings.Web;
-using Util.Helpers;
 using Util.Ui.Enums;
 using Util.Ui.Extensions;
 using Util.Ui.Material.Enums;
@@ -79,6 +77,16 @@ namespace Util.Ui.Tests.Material.Forms {
         }
 
         /// <summary>
+        /// 测试添加绑定名称
+        /// </summary>
+        [Fact]
+        public void TestBindName() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [name]=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.BindName( "a" ) ) );
+        }
+
+        /// <summary>
         /// 测试禁用
         /// </summary>
         [Fact]
@@ -95,7 +103,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestDisabled_String() {
             var result = new String();
             result.Append( "<mat-textbox-wrapper [disabled]=\"a.B\"></mat-textbox-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.Disable("a.B") ) );
+            Assert.Equal( result.ToString(), GetResult( _component.Disable( "a.B" ) ) );
         }
 
         /// <summary>
@@ -105,7 +113,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestReadOnly() {
             var result = new String();
             result.Append( "<mat-textbox-wrapper [readonly]=\"false\"></mat-textbox-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.ReadOnly(false) ) );
+            Assert.Equal( result.ToString(), GetResult( _component.ReadOnly( false ) ) );
         }
 
         /// <summary>
@@ -126,6 +134,16 @@ namespace Util.Ui.Tests.Material.Forms {
             var result = new String();
             result.Append( "<mat-textbox-wrapper placeholder=\"a\"></mat-textbox-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( _component.Placeholder( "a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试设置绑定占位提示
+        /// </summary>
+        [Fact]
+        public void TestBindPlaceholder() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [placeholder]=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.BindPlaceholder( "a" ) ) );
         }
 
         /// <summary>
@@ -259,6 +277,16 @@ namespace Util.Ui.Tests.Material.Forms {
         }
 
         /// <summary>
+        /// 测试正则表达式验证
+        /// </summary>
+        [Fact]
+        public void TestRegex() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper patterMessage=\"b\" pattern=\"a\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Regex( "a","b" ) ) );
+        }
+
+        /// <summary>
         /// 测试变更事件
         /// </summary>
         [Fact]
@@ -345,7 +373,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestEmail_Message() {
             var result = new String();
             result.Append( "<mat-textbox-wrapper emailMessage=\"a\" type=\"email\"></mat-textbox-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.Email("a") ) );
+            Assert.Equal( result.ToString(), GetResult( _component.Email( "a" ) ) );
         }
 
         /// <summary>
@@ -355,7 +383,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestMinLength() {
             var result = new String();
             result.Append( "<mat-textbox-wrapper [minLength]=\"3\"></mat-textbox-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.MinLength(3) ) );
+            Assert.Equal( result.ToString(), GetResult( _component.MinLength( 3 ) ) );
         }
 
         /// <summary>
@@ -365,7 +393,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestMinLength_Message() {
             var result = new String();
             result.Append( "<mat-textbox-wrapper minLengthMessage=\"a\" [minLength]=\"3\"></mat-textbox-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.MinLength( 3,"a" ) ) );
+            Assert.Equal( result.ToString(), GetResult( _component.MinLength( 3, "a" ) ) );
         }
 
         /// <summary>
@@ -379,13 +407,43 @@ namespace Util.Ui.Tests.Material.Forms {
         }
 
         /// <summary>
+        /// 测试最小值验证
+        /// </summary>
+        [Fact]
+        public void TestMin() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper minMessage=\"a\" [min]=\"3\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Min( 3, "a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试最大值验证
+        /// </summary>
+        [Fact]
+        public void TestMax() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper maxMessage=\"a\" [max]=\"3\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Max( 3,"a" ) ) );
+        }
+
+        /// <summary>
+        /// 测试独立
+        /// </summary>
+        [Fact]
+        public void TestStandalone() {
+            var result = new String();
+            result.Append( "<mat-textbox-wrapper [standalone]=\"true\"></mat-textbox-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( _component.Standalone() ) );
+        }
+
+        /// <summary>
         /// 测试多行文本框
         /// </summary>
         [Fact]
         public void TestToTextArea_1() {
             var result = new String();
             result.Append( "<mat-textarea-wrapper [minRows]=\"3\"></mat-textarea-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.ToTextArea( 3) ) );
+            Assert.Equal( result.ToString(), GetResult( _component.ToTextArea( 3 ) ) );
         }
 
         /// <summary>
@@ -395,7 +453,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestToTextArea_2() {
             var result = new String();
             result.Append( "<mat-textarea-wrapper [maxRows]=\"5\" [minRows]=\"3\"></mat-textarea-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.ToTextArea( 3,5 ) ) );
+            Assert.Equal( result.ToString(), GetResult( _component.ToTextArea( 3, 5 ) ) );
         }
 
         /// <summary>
@@ -415,7 +473,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestToDatePicker_2() {
             var result = new String();
             result.Append( "<mat-datepicker-wrapper minDate=\"a\"></mat-datepicker-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.ToDatePicker("a") ) );
+            Assert.Equal( result.ToString(), GetResult( _component.ToDatePicker( "a" ) ) );
         }
 
         /// <summary>
@@ -425,7 +483,7 @@ namespace Util.Ui.Tests.Material.Forms {
         public void TestToDatePicker_3() {
             var result = new String();
             result.Append( "<mat-datepicker-wrapper maxDate=\"b\" minDate=\"a\"></mat-datepicker-wrapper>" );
-            Assert.Equal( result.ToString(), GetResult( _component.ToDatePicker( "a" ,"b") ) );
+            Assert.Equal( result.ToString(), GetResult( _component.ToDatePicker( "a", "b" ) ) );
         }
 
         /// <summary>

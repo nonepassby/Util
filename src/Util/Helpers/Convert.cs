@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Util.Helpers {
     /// <summary>
@@ -85,7 +86,7 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 转换为64位浮点型,并按指定小数位舍入，温馨提示：4舍6入5成双
+        /// 转换为64位浮点型,并按指定小数位舍入
         /// </summary>
         /// <param name="input">输入值</param>
         /// <param name="digits">小数位数</param>
@@ -94,7 +95,7 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 转换为64位可空浮点型,并按指定小数位舍入，温馨提示：4舍6入5成双
+        /// 转换为64位可空浮点型,并按指定小数位舍入
         /// </summary>
         /// <param name="input">输入值</param>
         /// <param name="digits">小数位数</param>
@@ -108,7 +109,7 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 转换为128位浮点型,并按指定小数位舍入，温馨提示：4舍6入5成双
+        /// 转换为128位浮点型,并按指定小数位舍入
         /// </summary>
         /// <param name="input">输入值</param>
         /// <param name="digits">小数位数</param>
@@ -117,7 +118,7 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 转换为128位可空浮点型,并按指定小数位舍入，温馨提示：4舍6入5成双
+        /// 转换为128位可空浮点型,并按指定小数位舍入
         /// </summary>
         /// <param name="input">输入值</param>
         /// <param name="digits">小数位数</param>
@@ -182,7 +183,7 @@ namespace Util.Helpers {
         /// </summary>
         /// <param name="input">输入值</param>
         public static DateTime ToDate( object input ) {
-            return ToDateOrNull(input) ?? DateTime.MinValue;
+            return ToDateOrNull( input ) ?? DateTime.MinValue;
         }
 
         /// <summary>
@@ -242,12 +243,13 @@ namespace Util.Helpers {
             if( input is string && string.IsNullOrWhiteSpace( input.ToString() ) )
                 return default( T );
             Type type = Common.GetType<T>();
+            var typeName = type.Name.ToLower();
             try {
-                if( type.Name.ToLower() == "string" )
+                if( typeName == "string" )
                     return (T)(object)input.ToString();
-                if( type.Name.ToLower() == "guid" )
+                if( typeName == "guid" )
                     return (T)(object)new Guid( input.ToString() );
-                if ( type.IsEnum )
+                if( type.IsEnum )
                     return Enum.Parse<T>( input );
                 if( input is IConvertible )
                     return (T)System.Convert.ChangeType( input, type );
@@ -256,6 +258,23 @@ namespace Util.Helpers {
             catch {
                 return default( T );
             }
+        }
+
+        /// <summary>
+        /// 转换为字节数组
+        /// </summary>
+        /// <param name="input">输入值</param>        
+        public static byte[] ToBytes( string input ) {
+            return ToBytes( input, Encoding.UTF8 );
+        }
+
+        /// <summary>
+        /// 转换为字节数组
+        /// </summary>
+        /// <param name="input">输入值</param>
+        /// <param name="encoding">字符编码</param>
+        public static byte[] ToBytes( string input, Encoding encoding ) {
+            return string.IsNullOrWhiteSpace( input ) ? new byte[] { } : encoding.GetBytes( input );
         }
     }
 }

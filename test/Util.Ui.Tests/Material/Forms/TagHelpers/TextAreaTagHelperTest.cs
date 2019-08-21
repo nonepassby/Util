@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Util.Ui.Angular;
 using Util.Ui.Configs;
 using Util.Ui.Enums;
-using Util.Ui.Material.Commons.Configs;
+using Util.Ui.Material;
 using Util.Ui.Material.Enums;
 using Util.Ui.Material.Forms.TagHelpers;
 using Util.Ui.Tests.XUnitHelpers;
@@ -101,6 +102,17 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
             var attributes = new TagHelperAttributeList { { UiConst.Placeholder, "a" } };
             var result = new String();
             result.Append( "<mat-textarea-wrapper placeholder=\"a\"></mat-textarea-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试设置绑定占位提示
+        /// </summary>
+        [Fact]
+        public void TestBindPlaceholder() {
+            var attributes = new TagHelperAttributeList { { AngularConst.BindPlaceholder, "a" } };
+            var result = new String();
+            result.Append( "<mat-textarea-wrapper [placeholder]=\"a\"></mat-textarea-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
         }
 
@@ -271,6 +283,28 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         }
 
         /// <summary>
+        /// 测试正则表达式验证
+        /// </summary>
+        [Fact]
+        public void TestRegex() {
+            var attributes = new TagHelperAttributeList { { UiConst.Regex, "a" } };
+            var result = new String();
+            result.Append( "<mat-textarea-wrapper pattern=\"a\"></mat-textarea-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
+        /// 测试正则表达式验证消息
+        /// </summary>
+        [Fact]
+        public void TestRegexMessage() {
+            var attributes = new TagHelperAttributeList { { UiConst.RegexMessage, "a" } };
+            var result = new String();
+            result.Append( "<mat-textarea-wrapper patterMessage=\"a\"></mat-textarea-wrapper>" );
+            Assert.Equal( result.ToString(), GetResult( attributes ) );
+        }
+
+        /// <summary>
         /// 测试变更事件
         /// </summary>
         [Fact]
@@ -319,7 +353,7 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         /// </summary>
         [Fact]
         public void TestMinRows() {
-            var attributes = new TagHelperAttributeList { { MaterialConst.MinRows, 3 } };
+            var attributes = new TagHelperAttributeList { { UiConst.MinRows, 3 } };
             var result = new String();
             result.Append( "<mat-textarea-wrapper [minRows]=\"3\"></mat-textarea-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );
@@ -330,7 +364,7 @@ namespace Util.Ui.Tests.Material.Forms.TagHelpers {
         /// </summary>
         [Fact]
         public void TestMaxRows() {
-            var attributes = new TagHelperAttributeList { { MaterialConst.MaxRows, 3 } };
+            var attributes = new TagHelperAttributeList { { UiConst.MaxRows, 3 } };
             var result = new String();
             result.Append( "<mat-textarea-wrapper [maxRows]=\"3\"></mat-textarea-wrapper>" );
             Assert.Equal( result.ToString(), GetResult( attributes ) );

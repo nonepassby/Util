@@ -6,6 +6,12 @@
         /// <summary>
         /// 初始化支付结果
         /// </summary>
+        public PayResult() {
+        }
+
+        /// <summary>
+        /// 初始化支付结果
+        /// </summary>
         /// <param name="success">是否成功</param>
         /// <param name="tradeId">交易编号</param>
         /// <param name="raw">支付接口返回的原始消息</param>
@@ -39,5 +45,10 @@
         /// 消息
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// 请求参数
+        /// </summary>
+        public string Parameter { get; set; }
     }
 }

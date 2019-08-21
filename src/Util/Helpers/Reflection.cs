@@ -48,11 +48,11 @@ namespace Util.Helpers {
         public static string GetDescription( MemberInfo member ) {
             if( member == null )
                 return string.Empty;
-            return member.GetCustomAttribute( typeof( DescriptionAttribute ) ) is DescriptionAttribute attribute ? attribute.Description : member.Name;
+            return member.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute ? attribute.Description : member.Name;
         }
 
         /// <summary>
-        /// 获取类型显示名称，使用DisplayNameAttribute设置显示名称
+        /// 获取显示名称，使用DisplayNameAttribute设置显示名称
         /// </summary>
         /// <typeparam name="T">类型</typeparam>
         public static string GetDisplayName<T>() {
@@ -60,26 +60,28 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 获取类型显示名称，使用DisplayNameAttribute设置显示名称
+        /// 获取显示名称，使用DisplayAttribute或DisplayNameAttribute设置显示名称
         /// </summary>
-        private static string GetDisplayName( Type type ) {
-            if( type == null )
+        public static string GetDisplayName( MemberInfo member ) {
+            if( member == null )
                 return string.Empty;
-            return type.GetCustomAttribute( typeof( DisplayNameAttribute ) ) is DisplayNameAttribute attribute ? attribute.DisplayName : string.Empty;
+            if( member.GetCustomAttribute<DisplayAttribute>() is DisplayAttribute displayAttribute )
+                return displayAttribute.Name;
+            if( member.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayNameAttribute )
+                return displayNameAttribute.DisplayName;
+            return string.Empty;
         }
 
         /// <summary>
-        /// 获取类型显示名称或描述,使用DisplayNameAttribute设置显示名称,使用DescriptionAttribute设置描述
+        /// 获取显示名称或描述,使用DisplayNameAttribute设置显示名称,使用DescriptionAttribute设置描述
         /// </summary>
         /// <typeparam name="T">类型</typeparam>
         public static string GetDisplayNameOrDescription<T>() {
-            var type = Common.GetType<T>();
-            var result = GetDisplayName( type );
-            return string.IsNullOrWhiteSpace( result ) ? GetDescription( type ) : result;
+            return GetDisplayNameOrDescription( Common.GetType<T>() );
         }
 
         /// <summary>
-        /// 获取属性显示名称或描述,使用DisplayNameAttribute或DisplayAttribute设置显示名称,使用DescriptionAttribute设置描述
+        /// 获取属性显示名称或描述,使用DisplayAttribute或DisplayNameAttribute设置显示名称,使用DescriptionAttribute设置描述
         /// </summary>
         public static string GetDisplayNameOrDescription( MemberInfo member ) {
             var result = GetDisplayName( member );
@@ -87,25 +89,79 @@ namespace Util.Helpers {
         }
 
         /// <summary>
-        /// 获取类型成员显示名称，使用DisplayNameAttribute或DisplayAttribute设置显示名称
+        /// 查找类型列表
         /// </summary>
-        private static string GetDisplayName( MemberInfo member ) {
-            if( member == null )
-                return string.Empty;
-            if( member.GetCustomAttribute( typeof( DisplayNameAttribute ) ) is DisplayNameAttribute displayNameAttribute )
-                return displayNameAttribute.DisplayName;
-            return member.GetCustomAttribute( typeof( DisplayAttribute ) ) is DisplayAttribute displayAttribute ? displayAttribute.Name : string.Empty;
+        /// <typeparam name="TFind">查找类型</typeparam>
+        /// <param name="assemblies">待查找的程序集列表</param>
+        public static List<Type> FindTypes<TFind>( params Assembly[] assemblies ) {
+            var findType = typeof( TFind );
+            return FindTypes( findType, assemblies );
         }
 
         /// <summary>
-        /// 获取实现了接口的所有具体类型
+        /// 查找类型列表
+        /// </summary>
+        /// <param name="findType">查找类型</param>
+        /// <param name="assemblies">待查找的程序集列表</param>
+        public static List<Type> FindTypes( Type findType, params Assembly[] assemblies ) {
+            var result = new List<Type>();
+            foreach ( var assembly in assemblies )
+                result.AddRange( GetTypes( findType, assembly ) );
+            return result.Distinct().ToList();
+        }
+
+        /// <summary>
+        /// 获取类型列表
+        /// </summary>
+        private static List<Type> GetTypes( Type findType, Assembly assembly ) {
+            var result = new List<Type>();
+            if ( assembly == null )
+                return result;
+            Type[] types;
+            try {
+                types = assembly.GetTypes();
+            }
+            catch( ReflectionTypeLoadException ) {
+                return result;
+            }
+            foreach( var type in types )
+                AddType( result, findType, type );
+            return result;
+        }
+
+        /// <summary>
+        /// 添加类型
+        /// </summary>
+        private static void AddType( List<Type> result, Type findType, Type type ) {
+            if( type.IsInterface || type.IsAbstract )
+                return;
+            if( findType.IsAssignableFrom( type ) == false && MatchGeneric( findType, type ) == false )
+                return;
+            result.Add( type );
+        }
+
+        /// <summary>
+        /// 泛型匹配
+        /// </summary>
+        private static bool MatchGeneric( Type findType, Type type ) {
+            if( findType.IsGenericTypeDefinition == false )
+                return false;
+            var definition = findType.GetGenericTypeDefinition();
+            foreach( var implementedInterface in type.FindInterfaces( ( filter, criteria ) => true, null ) ) {
+                if( implementedInterface.IsGenericType == false )
+                    continue;
+                return definition.IsAssignableFrom( implementedInterface.GetGenericTypeDefinition() );
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 获取实现了接口的所有实例
         /// </summary>
         /// <typeparam name="TInterface">接口类型</typeparam>
-        /// <param name="assembly">在该程序集中查找</param>
-        public static List<TInterface> GetTypesByInterface<TInterface>( Assembly assembly ) {
-            var typeInterface = typeof( TInterface );
-            return assembly.GetTypes()
-                .Where( t => typeInterface.GetTypeInfo().IsAssignableFrom( t ) && t != typeInterface && t.GetTypeInfo().IsAbstract == false )
+        /// <param name="assemblies">待查找的程序集列表</param>
+        public static List<TInterface> GetInstancesByInterface<TInterface>( params Assembly[] assemblies ) {
+            return FindTypes<TInterface>( assemblies )
                 .Select( t => CreateInstance<TInterface>( t ) ).ToList();
         }
 
@@ -247,7 +303,7 @@ namespace Util.Helpers {
         public static bool IsNumber( MemberInfo member ) {
             if( member == null )
                 return false;
-            if ( IsInt( member ) )
+            if( IsInt( member ) )
                 return true;
             switch( member.MemberType ) {
                 case MemberTypes.TypeInfo:
@@ -278,11 +334,21 @@ namespace Util.Helpers {
         }
 
         /// <summary>
+        /// 是否集合
+        /// </summary>
+        /// <param name="type">类型</param>
+        public static bool IsCollection( Type type ) {
+            if( type.IsArray )
+                return true;
+            return IsGenericCollection( type );
+        }
+
+        /// <summary>
         /// 是否泛型集合
         /// </summary>
         /// <param name="type">类型</param>
         public static bool IsGenericCollection( Type type ) {
-            if ( !type.IsGenericType )
+            if( !type.IsGenericType )
                 return false;
             var typeDefinition = type.GetGenericTypeDefinition();
             return typeDefinition == typeof( IEnumerable<> )
@@ -301,6 +367,37 @@ namespace Util.Helpers {
             return Directory.GetFiles( directoryPath, "*.*", SearchOption.AllDirectories ).ToList()
                 .Where( t => t.EndsWith( ".exe" ) || t.EndsWith( ".dll" ) )
                 .Select( path => Assembly.Load( new AssemblyName( path ) ) ).ToList();
+        }
+
+        /// <summary>
+        /// 获取公共属性列表
+        /// </summary>
+        /// <param name="instance">实例</param>
+        public static List<Item> GetPublicProperties( object instance ) {
+            var properties = instance.GetType().GetProperties();
+            return properties.ToList().Select( t => new Item( t.Name, t.GetValue( instance ) ) ).ToList();
+        }
+
+        /// <summary>
+        /// 获取顶级基类
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        public static Type GetTopBaseType<T>() {
+            return GetTopBaseType( typeof( T ) );
+        }
+
+        /// <summary>
+        /// 获取顶级基类
+        /// </summary>
+        /// <param name="type">类型</param>
+        public static Type GetTopBaseType( Type type ) {
+            if( type == null )
+                return null;
+            if ( type.IsInterface )
+                return type;
+            if( type.BaseType == typeof( object ) )
+                return type;
+            return GetTopBaseType( type.BaseType );
         }
     }
 }
